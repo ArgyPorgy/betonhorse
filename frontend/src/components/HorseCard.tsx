@@ -110,16 +110,14 @@ export default function HorseCard({
         {horse.bio}
       </p>
 
-      {/* Stats */}
-      {horse.stats && (
-        <div className="space-y-1.5">
-          <StatBar label="Speed" value={horse.stats.speed} />
-          <StatBar label="Stamina" value={horse.stats.stamina} />
-          <StatBar label="Consist." value={horse.stats.consistency} />
-          <StatBar label="Aggress." value={horse.stats.aggression} />
-          <StatBar label="Luck" value={horse.stats.luck} />
-        </div>
-      )}
+      {/* Stats - always visible */}
+      <div className="space-y-1.5">
+        <StatBar label="Speed" value={horse.stats?.speed ?? 50} />
+        <StatBar label="Stamina" value={horse.stats?.stamina ?? 50} />
+        <StatBar label="Consist." value={horse.stats?.consistency ?? 50} />
+        <StatBar label="Aggress." value={horse.stats?.aggression ?? 50} />
+        <StatBar label="Luck" value={horse.stats?.luck ?? 50} />
+      </div>
     </button>
   );
 }
