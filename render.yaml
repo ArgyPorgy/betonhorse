@@ -10,6 +10,7 @@ services:
     name: betonhorse-redis
     plan: free
     maxmemoryPolicy: noeviction
+    ipAllowList: []
 
   # ──────────────────────────────────────
   # Backend - Race engine, API, Socket.IO
