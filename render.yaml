@@ -1,0 +1,71 @@
+# BetOnHorse - Render Blueprint
+# Deploy: Connect repo to Render, then "Apply" this blueprint
+# Or: New > Blueprint > Connect repo
+
+services:
+  # ──────────────────────────────────────
+  # Redis - Race state & queues
+  # ──────────────────────────────────────
+  - type: redis
+    name: betonhorse-redis
+    plan: free
+    maxmemoryPolicy: noeviction
+
+  # ──────────────────────────────────────
+  # Backend - Race engine, API, Socket.IO
+  # ──────────────────────────────────────
+  - type: web
+    name: betonhorse-backend
+    runtime: node
+    plan: free
+
+    rootDir: backend
+
+    buildCommand: npm install
+    startCommand: npm start
+
+    healthCheckPath: /api/health
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: betonhorse-redis
+          property: connectionString
+      # Set to your frontend URL after deploy, e.g. https://betonhorse-frontend.onrender.com
+      - key: CORS_ORIGIN
+        sync: false
+      - key: CONTRACT_ADDRESS
+        sync: false
+      - key: OWNER_PRIVATE_KEY
+        sync: false
+      - key: SEPOLIA_RPC_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+
+  # ──────────────────────────────────────
+  # Frontend - Next.js web app
+  # ──────────────────────────────────────
+  - type: web
+    name: betonhorse-frontend
+    runtime: node
+    plan: free
+
+    rootDir: frontend
+
+    buildCommand: npm install && npm run build
+    startCommand: npm run start
+
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Set to your backend URL after first deploy, e.g. https://betonhorse-backend.onrender.com
+      - key: NEXT_PUBLIC_BACKEND_URL
+        sync: false
+      - key: NEXT_PUBLIC_PRIVY_APP_ID
+        sync: false
+      - key: NEXT_PUBLIC_CONTRACT_ADDRESS
+        sync: false

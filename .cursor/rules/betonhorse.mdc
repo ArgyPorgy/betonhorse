@@ -1,0 +1,34 @@
+---
+alwaysApply: true
+---
+# BetOnHorse Project
+
+## Architecture
+- **Frontend**: Next.js 14 (App Router) + Tailwind CSS + Privy Auth + Canvas animation
+- **Backend**: Express.js + Socket.IO + Redis (race state) + ethers.js (contract interaction)
+- **Smart Contract**: Solidity 0.8.24 on Sepolia testnet (Hardhat)
+- **Infra**: Docker Compose (frontend, backend, redis)
+
+## Key Files
+- [BetOnHorse.sol](mdc:contracts/contracts/BetOnHorse.sol) — Main smart contract
+- [raceEngine.js](mdc:backend/src/raceEngine.js) — Race outcome RNG engine
+- [raceManager.js](mdc:backend/src/raceManager.js) — Race lifecycle orchestrator
+- [page.tsx](mdc:frontend/src/app/page.tsx) — Main UI page
+- [RaceTrack.tsx](mdc:frontend/src/components/RaceTrack.tsx) — Canvas racing animation
+- [docker-compose.yml](mdc:docker-compose.yml) — Docker setup
+
+## Key Design Decisions
+1. Race outcome is determined BEFORE animation starts (provably fair)
+2. Animation is purely cosmetic — scripted to match the pre-determined winner
+3. House edge is baked into probability calculation (heavily bet horses get lower odds)
+4. Contract holds escrow (trustless) — funds never route through owner wallet first
+5. Privy handles auth + embedded wallets
+6. Socket.IO for real-time race state sync
+
+## Race Lifecycle
+WAITING → OPEN (accept bets) → LOCKED → RUNNING (animation) → SETTLED → WAITING## Contract Functions
+- `createRace(seedHash)` — Owner creates race with pre-committed seed
+- `placeBet(raceId, horseId)` — Player bets ETH
+- `lockRace(raceId)` — Owner locks betting
+- `settleRace(raceId, winner, seed)` — Owner reveals result
+- `claim(betId)` — Winner claims 2x payout

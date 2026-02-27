@@ -1,0 +1,65 @@
+services:
+  # ──────────────────────────────────────
+  # Redis - Race state & queues
+  # ──────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ──────────────────────────────────────
+  # Backend - Race engine & API
+  # ──────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    environment:
+      - PORT=4000
+      - REDIS_URL=redis://redis:6379
+      - CORS_ORIGIN=http://localhost:3000
+      - SEPOLIA_RPC_URL=${SEPOLIA_RPC_URL:-https://rpc.sepolia.org}
+      - CONTRACT_ADDRESS=${CONTRACT_ADDRESS:-}
+      - OWNER_PRIVATE_KEY=${OWNER_PRIVATE_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+      - RACE_INTERVAL_MS=${RACE_INTERVAL_MS:-120000}
+      - BET_WINDOW_MS=${BET_WINDOW_MS:-60000}
+      - RACE_DURATION_MS=${RACE_DURATION_MS:-30000}
+    depends_on:
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ──────────────────────────────────────
+  # Frontend - Next.js web app
+  # ──────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID:-}
+        - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4000}
+        - NEXT_PUBLIC_CONTRACT_ADDRESS=${NEXT_PUBLIC_CONTRACT_ADDRESS:-}
+    ports:
+      - "3000:3000"
+    environment:
+      - NEXT_PUBLIC_PRIVY_APP_ID=${NEXT_PUBLIC_PRIVY_APP_ID:-}
+      - NEXT_PUBLIC_BACKEND_URL=${NEXT_PUBLIC_BACKEND_URL:-http://localhost:4000}
+      - NEXT_PUBLIC_CONTRACT_ADDRESS=${NEXT_PUBLIC_CONTRACT_ADDRESS:-}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  redis_data:
