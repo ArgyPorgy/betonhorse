@@ -57,8 +57,7 @@ services:
 
     rootDir: frontend
 
-    # --include=dev ensures tailwindcss, postcss, autoprefixer are installed (Render sets NODE_ENV=production)
-    buildCommand: npm install --include=dev && npm run build
+    buildCommand: npm install && npm run build
     startCommand: npm run start
 
     envVars:

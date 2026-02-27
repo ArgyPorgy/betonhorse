@@ -68,7 +68,7 @@ If Blueprint fails or you prefer manual setup:
 3. Configure:
    - **Name:** `betonhorse-frontend`
    - **Root Directory:** `frontend`
-   - **Build Command:** `npm install --include=dev && npm run build` *(required: Tailwind/PostCSS are in devDependencies)*
+   - **Build Command:** `npm install && npm run build`
    - **Start Command:** `npm run start`
    - **Instance Type:** Free
 
