@@ -1,6 +1,7 @@
 const { ethers } = require("ethers");
 const { RaceEngine } = require("./raceEngine");
 const { HORSES } = require("./horses");
+const { AgentAI } = require("./agentAI");
 const config = require("./config");
 
 // ABI for the contract functions we need
@@ -145,6 +146,8 @@ class RaceManager {
         color: h.color,
         image: h.image,
         bio: h.bio,
+        stats: h.stats,
+        personality: AgentAI.getPersonality(h.id),
       })),
       bets: {},
       totalPool: 0,
